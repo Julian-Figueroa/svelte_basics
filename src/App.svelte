@@ -1,45 +1,85 @@
 <script>
-  import ContactCard from './ContactCard.svelte';
-  
+  import ContactCard from "./ContactCard.svelte";
+
   let name = "Ian";
-  let age = 35;
   let title = "";
   let description = "";
   let image = "";
+  let formState = "empty";
 
-  $: uppercaseName = name.toUpperCase();
+  let createdContacts = [];
 
-  //   $: console.log("Name: ", name);
-
-  $: if (name === "Julian") {
-    age = 30;
+  function addContact() {
+    if (
+      name.trim().length === 0 ||
+      title.trim().length === 0 ||
+      image.trim().length === 0 ||
+      description.trim().length === 0
+    ) {
+      formState = "invalid";
+      return;
+    }
+    createdContacts = [
+      ...createdContacts,
+      {
+        id: Math.random,
+        name,
+        title,
+        image,
+        description
+      }
+    ];
+    formState = "done";
   }
-
-  function incrementAge() {
-    age += 1;
+  function deleteFirst() {
+    createdContacts = createdContacts.slice(1);
   }
-  function changeName() {
-    name = "Julian";
-  }
-  function nameInput(event) {
-    const enteredValue = event.target.value;
-    name = enteredValue;
+  function deleteLast() {
+    createdContacts = createdContacts.slice(0, -1);
   }
 </script>
 
 <style>
-  h1 {
-    color: purple;
+  #form {
+    width: 30rem;
+    max-width: 100%;
   }
 </style>
 
-<h1>Hello {uppercaseName}, my age is {age}!</h1>
-<button on:click={incrementAge}>Change Age</button>
-<!-- <button on:click="{changeName}">Change Name</button> -->
-<!-- <input type="text" value={name} on:input="{nameInput}" /> -->
-<input type="text" bind:value={name} />
-<input type="text" bind:value={title} />
-<input type="text" bind:value={image} />
-<textarea rows="4" bind:value={description}></textarea>
+<div id="form">
+  <div class="form-control">
+    <label for="userName">User Name</label>
+    <input type="text" bind:value={name} id="userName" />
+  </div>
+  <div class="form-control">
+    <label for="jobTitle">Job Title</label>
+    <input type="text" bind:value={title} id="jobTitle" />
+  </div>
+  <div class="form-control">
+    <label for="image">Image URL</label>
+    <input type="text" bind:value={image} id="image" />
+  </div>
+  <div class="form-control">
+    <label for="desc">Description</label>
+    <textarea rows="3" bind:value={description} id="desc" />
+  </div>
+</div>
 
-<ContactCard userName={name} jobTitle={title} {description} userImage={image}/>
+<button on:click={addContact}>Add contact Card</button>
+<button on:click={deleteFirst}>Delete First</button>
+<button on:click={deleteLast}>Delete Last</button>
+
+{#if formState === 'invalid'}
+  <p>Invalid input</p>
+{:else}
+  {#each createdContacts as contact, index (contact.id)}
+    <h2># of Cards {index + 1}</h2>
+    <ContactCard
+      userName={contact.name}
+      jobTitle={contact.title}
+      description={contact.description}
+      userImage={contact.image} />
+  {:else}
+    <p>Please add contect to the Cards</p>
+  {/each}
+{/if}
